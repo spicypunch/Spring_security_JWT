@@ -12,15 +12,15 @@ spring:
     url: jdbc:mariadb://223.130.163.223:3306/study
     username: root
     password: 1234
-jpa:
-  open-in-view: true
-  hibernate:
-    ddl-auto: create
-  properties:
+  jpa:
+    open-in-view: true
     hibernate:
-      show_sql: false
-      format_sql: true
-      highlight_sql: true
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: true
+        highlight_sql: true
 logging:
   pattern:
     console: "[%d{HH:mm:ss.SSS}][%-5level][%logger.%method:line%line] - %msg%n"
