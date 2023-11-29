@@ -1,4 +1,4 @@
-package com.example.demo.common.common
+package com.example.demo.common.annotation
 
 import jakarta.validation.Constraint
 import jakarta.validation.ConstraintValidator
