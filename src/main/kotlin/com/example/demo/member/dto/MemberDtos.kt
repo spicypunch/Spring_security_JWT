@@ -1,7 +1,8 @@
 package com.example.demo.member.dto
 
-import com.example.demo.common.common.ValidEnum
+import com.example.demo.common.annotation.ValidEnum
 import com.example.demo.common.status.Gender
+import com.example.demo.member.entity.Member
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
@@ -28,14 +29,12 @@ data class MemberDtoRequest(
         private val _name: String?,
 
         @field:NotBlank
-        @JsonProperty("birthDate")
-        private val _birthDate: String?,
-
-        @field:NotBlank
         @field:Pattern(
                 regexp = "^([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))$",
                 message = "날짜형식(yyyy-MM-DD)을 확인해주세요"
         )
+        @JsonProperty("birthDate")
+        private val _birthDate: String?,
 
         @field:NotBlank
         @field:ValidEnum(enumClass = Gender::class, message = "MAN OR WOMAN")
@@ -62,4 +61,21 @@ data class MemberDtoRequest(
 
     private fun String.toLocalDate(): LocalDate =
             LocalDate.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+    fun toEntity(): Member = Member(id, loginId, password, name, birthDate, gender, email)
+}
+
+data class LoginDto(
+        @field:NotBlank
+        @JsonProperty("loginId")
+        private val _loginId: String?,
+
+        @field:NotBlank
+        @JsonProperty("password")
+        private val _password: String?
+) {
+    val loginId: String
+        get() = _loginId!!
+    val password: String
+        get() = _password!!
 }

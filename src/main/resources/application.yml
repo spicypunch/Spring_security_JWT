@@ -15,7 +15,7 @@ spring:
   jpa:
     open-in-view: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
     properties:
       hibernate:
         show_sql: false
@@ -29,3 +29,6 @@ logging:
       hibernate:
         SQL: debug
         type.descriptor.sql: trace
+
+jwt:
+  secret: DadFufN4Oui8Bfv3ScFj6R9fyJ9hD45E6AGFsXgFsRhT4YSdSb
