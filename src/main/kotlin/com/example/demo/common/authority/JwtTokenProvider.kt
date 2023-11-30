@@ -1,12 +1,7 @@
 package com.example.demo.common.authority
 
 import com.example.demo.common.dto.CustomUser
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.SignatureAlgorithm
-import io.jsonwebtoken.UnsupportedJwtException
+import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SecurityException
@@ -15,14 +10,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Component
-import java.lang.IllegalArgumentException
-import java.lang.RuntimeException
-import java.util.Date
+import java.util.*
 
-const val EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 30
+const val ACCESS_TOKEN_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 60 * 24
+const val REFRESH_TOKEN_EXPIRATION_MILLISECONDS: Long = 1000 * 60 * 60 * 24 * 15
 
 @Component
 class JwtTokenProvider {
@@ -34,13 +27,13 @@ class JwtTokenProvider {
     /**
      * Token 생성
      */
-    fun createToken(authentication: Authentication): TokenInfo {
+    fun createAccessToken(authentication: Authentication): TokenInfo {
         val authorities: String = authentication
                 .authorities
                 .joinToString(",", transform = GrantedAuthority::getAuthority)
 
         val now = Date()
-        val accessException = Date(now.time + EXPIRATION_MILLISECONDS)
+        val accessException = Date(now.time + ACCESS_TOKEN_EXPIRATION_MILLISECONDS)
 
         // Access Token
         val accessToken = Jwts
@@ -101,4 +94,34 @@ class JwtTokenProvider {
                     .parseClaimsJws(token)
                     .body
 
+    fun createRefreshToken(userId: Long): String {
+        val now = Date()
+        val expiration = Date(now.time + REFRESH_TOKEN_EXPIRATION_MILLISECONDS)
+
+        return Jwts
+                .builder()
+                .setSubject(userId.toString())
+                .setIssuedAt(now)
+                .setExpiration(expiration)
+                .signWith(key)
+                .compact()
+    }
+
+    fun getRefreshToken(userId: Long): String {
+        return createRefreshToken(userId)
+    }
+
+    fun validateRefreshToken(token: String): Boolean {
+        return try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun extractUserIdFromRefreshToken(token: String): Long {
+        val claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).body
+        return claims.subject.toLong()
+    }
 }
