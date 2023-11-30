@@ -51,7 +51,7 @@ class MemberService(
         val authenticationToken = UsernamePasswordAuthenticationToken(loginDto.loginId, loginDto.password)
         val authentication = authenticationManagerBuilder.`object`.authenticate(authenticationToken)
 
-        return jwtTokenProvider.createToken(authentication)
+        return jwtTokenProvider.createAccessToken(authentication)
     }
 
     /**
